@@ -1024,6 +1024,7 @@
                                         hiddenFields.push("account");
                                         hiddenFields.push("gateway");
                                         hiddenFields.push("vlan");
+                                        hiddenFields.push("vxlan");
                                         hiddenFields.push("cidr");
                                         //hiddenFields.push("netmask");
                                     }
@@ -1041,6 +1042,7 @@
 
                                     if (!isAdmin()) {
                                         hiddenFields.push("vlan");
+                                        hiddenFields.push("vxlan");
                                     }
 
                                     return hiddenFields;
@@ -1085,6 +1087,9 @@
                                     },
                                     vlan: {
                                         label: 'label.vlan.id'
+                                    },
+                                    vxlan: {
+                                        label: 'label.vxlan.id'
                                     },
 
                                     networkofferingid: {

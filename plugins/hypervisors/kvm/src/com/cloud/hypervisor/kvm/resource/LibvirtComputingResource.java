@@ -1029,7 +1029,7 @@ ServerResource {
         if (! f.isDirectory()){
             s_logger.debug("failing to get physical interface from bridge "
                            + bridgeName + ", does " + f.getAbsolutePath()
-                           + "exist?");
+                           + " exist?");
             return "";
         }
 
@@ -1656,7 +1656,7 @@ ServerResource {
             return pifparts[1];
         } else {
             s_logger.debug("failed to get vlan id from bridge " + brName
-                           + "attached to physical interface" + pif);
+                           + " attached to physical interface" + pif);
             return "";
         }
     }
