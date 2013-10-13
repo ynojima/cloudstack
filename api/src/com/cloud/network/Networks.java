@@ -108,7 +108,15 @@ public class Networks {
         },
         Mido("mido", String.class),
         Pvlan("pvlan", String.class),
-        Vxlan("vxlan", Long.class),
+        Vxlan("vxlan", Long.class){
+            /**
+             * gets scheme specific part instead of host
+             */
+            @Override
+            public String getValueFrom(URI uri) {
+                return uri.getSchemeSpecificPart();
+            }
+        },
         UnDecided(null, null);
 
         private final String scheme;
@@ -205,6 +213,26 @@ public class Networks {
         }
 
         /**
+         * The default implementation of getPortFrom returns the port part of the uri
+         *
+         * @param uri to get the value from
+         * @return the port part as String
+         */
+        public int getPortFrom(URI uri) {
+            return uri.getPort();
+        }
+
+        /**
+         * The default implementation of getQueryFrom returns the Query part of the uri
+         *
+         * @param uri to get the value from
+         * @return the query part as String
+         */
+        public String getQueryFrom(URI uri) {
+            return uri.getQuery();
+        }
+
+        /**
          * get the BroadcastDomain value from an arbitrary URI
          * TODO what when the uri is useless
          *
@@ -227,6 +255,27 @@ public class Networks {
                 throws URISyntaxException {
             return getValue(new URI(uriString));
         }
+
+        /**
+         * get the BroadcastDomain port from an arbitrary URI
+         *
+         * @param uri the uri
+         * @return depending on the scheme/BroadcastDomainType
+         */
+        public static int getPort(URI uri) {
+            return getSchemeValue(uri).getPortFrom(uri);
+        }
+
+        /**
+         * get the BroadcastDomain port from an arbitrary URI
+         *
+         * @param uri the uri
+         * @return depending on the scheme/BroadcastDomainType
+         */
+        public static String getQuery(URI uri) {
+            return getSchemeValue(uri).getQueryFrom(uri);
+        }
+
 
         /**
          * encode a string into a BroadcastUri
