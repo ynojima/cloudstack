@@ -109,12 +109,24 @@ public class Networks {
         Mido("mido", String.class),
         Pvlan("pvlan", String.class),
         Vxlan("vxlan", Long.class){
-            /**
-             * gets scheme specific part instead of host
-             */
+
+            public <T> URI toUri(T value, int port) {
+                try {
+                    if (port < 0){
+                        return new URI("vxlan://" + value.toString());
+                    }
+                    else{
+                        return new URI("vxlan://" + value.toString() + ":" + String.valueOf(port));
+                    }
+                } catch (URISyntaxException e) {
+                    throw new CloudRuntimeException(
+                            "Unable to convert to broadcast URI: " + value);
+                }
+            }
+
             @Override
-            public String getValueFrom(URI uri) {
-                return uri.getSchemeSpecificPart();
+            public <T> URI toUri(T value) {
+                return toUri(value, -1);
             }
         },
         UnDecided(null, null);

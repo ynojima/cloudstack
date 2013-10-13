@@ -20,6 +20,9 @@
 package com.cloud.hypervisor.kvm.resource;
 
 import java.io.File;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +31,7 @@ import java.net.URI;
 import javax.naming.ConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.bouncycastle.util.IPAddress;
 import org.libvirt.LibvirtException;
 
 import com.cloud.agent.api.to.NicTO;
@@ -96,8 +100,8 @@ public class BridgeVifDriver extends VifDriverBase {
 
         String vNetId = null;
         String protocol = null;
-        int port = 0;
-        String multicastAddr = null;
+        int port = -1;
+        InetAddress multicastAddr = null;
         if (nic.getBroadcastType() == Networks.BroadcastDomainType.Vlan){
             vNetId = Networks.BroadcastDomainType.getValue(nic.getBroadcastUri());
             protocol = Networks.BroadcastDomainType.getSchemeValue(nic.getBroadcastUri()).scheme();
@@ -110,7 +114,15 @@ public class BridgeVifDriver extends VifDriverBase {
             for(String item : querySets){
                 String[] querySet = item.split("=");
                 if(querySet[0] == "maddr"){
-                    multicastAddr = querySet[1];
+                    try {
+                        multicastAddr = InetAddress.getByName(querySet[1]);
+                    }
+                    catch(UnknownHostException ex) {
+                        throw new InternalErrorException("multicast address isn't specified to maddr param");
+                    }
+                    if (!multicastAddr.isMulticastAddress()){
+                        throw new InternalErrorException("Specify multicast isn't specified to maddr param");
+                    }
                 }
             }
         }
@@ -124,10 +136,10 @@ public class BridgeVifDriver extends VifDriverBase {
                 || nic.getBroadcastType() == Networks.BroadcastDomainType.Vxlan) {
                 if(trafficLabel != null && !trafficLabel.isEmpty()) {
                     s_logger.debug("creating a vNet dev and bridge for guest traffic per traffic label " + trafficLabel);
-                    String brName = createVnetBr(vNetId, _pifs.get(trafficLabel), protocol);
+                    String brName = createVnetBr(vNetId, _pifs.get(trafficLabel), protocol, port, multicastAddr);
                     intf.defBridgeNet(brName, null, nic.getMac(), getGuestNicModel(guestOsType), networkRateKBps);
                 } else {
-                    String brName = createVnetBr(vNetId, _pifs.get("private"), protocol);
+                    String brName = createVnetBr(vNetId, _pifs.get("private"), protocol, port, multicastAddr);
                     intf.defBridgeNet(brName, null, nic.getMac(), getGuestNicModel(guestOsType), networkRateKBps);
                 }
             } else {
@@ -143,10 +155,10 @@ public class BridgeVifDriver extends VifDriverBase {
                     && !vNetId.equalsIgnoreCase("untagged")) {
                 if(trafficLabel != null && !trafficLabel.isEmpty()){
                     s_logger.debug("creating a vNet dev and bridge for public traffic per traffic label " + trafficLabel);
-                    String brName = createVnetBr(vNetId, _pifs.get(trafficLabel), protocol);
+                    String brName = createVnetBr(vNetId, _pifs.get(trafficLabel), protocol, port, multicastAddr);
                     intf.defBridgeNet(brName, null, nic.getMac(), getGuestNicModel(guestOsType), networkRateKBps);
                 } else {
-                    String brName = createVnetBr(vNetId, _pifs.get("public"), protocol);
+                    String brName = createVnetBr(vNetId, _pifs.get("public"), protocol, port, multicastAddr);
                     intf.defBridgeNet(brName, null, nic.getMac(), getGuestNicModel(guestOsType), networkRateKBps);
                 }
             } else {
@@ -171,15 +183,15 @@ public class BridgeVifDriver extends VifDriverBase {
         return "br" + pifName + "-"+ vnetId;
     }
 
-    private String createVnetBr(String vNetId, String nic, String protocol)
+    private String createVnetBr(String vNetId, String nic, String protocol, int port, InetAddress multicastAddr)
             throws InternalErrorException {
         String brName = setVnetBrName(nic, vNetId);
-        createVnet(vNetId, nic, brName, protocol);
+        createVnet(vNetId, nic, brName, protocol, port, multicastAddr);
         return brName;
     }
 
     
-    private void createVnet(String vnetId, String pif, String brName, String protocol)
+    private void createVnet(String vnetId, String pif, String brName, String protocol, int port, InetAddress multicastAddr)
             throws InternalErrorException {
         synchronized (_vnetBridgeMonitor) {
             String script = _modifyVlanPath;
@@ -187,10 +199,16 @@ public class BridgeVifDriver extends VifDriverBase {
                 script = _modifyVxlanPath;
             }
             final Script command = new Script(script, _timeout, s_logger);
+            command.add("-o", "add");
             command.add("-v", vnetId);
             command.add("-p", pif);
             command.add("-b", brName);
-            command.add("-o", "add");
+            if (port >= 0){
+                command.add("-P", String.valueOf(port));
+            }
+            if (multicastAddr != null){
+                command.add("-m", multicastAddr.toString());
+            }
 
             final String result = command.execute();
             if (result != null) {

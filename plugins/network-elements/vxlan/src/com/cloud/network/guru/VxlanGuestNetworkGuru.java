@@ -18,6 +18,7 @@ package com.cloud.network.guru;
 
 import javax.ejb.Local;
 
+import com.cloud.configuration.Config;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,7 @@ import com.cloud.network.PhysicalNetwork.IsolationMethod;
 import com.cloud.network.dao.NetworkVO;
 import com.cloud.offering.NetworkOffering;
 import com.cloud.user.Account;
+import com.cloud.utils.NumbersUtil;
 import com.cloud.vm.NicProfile;
 import com.cloud.vm.ReservationContext;
 import com.cloud.vm.VirtualMachine;
@@ -92,7 +94,11 @@ public class VxlanGuestNetworkGuru extends GuestNetworkGuru {
                 throw new InsufficientVirtualNetworkCapcityException("Unable to allocate vnet as a " +
                 		"part of network " + network + " implement ", DataCenter.class, dcId);
             }
-            implemented.setBroadcastUri(BroadcastDomainType.Vxlan.toUri(vnet));
+            int port= NumbersUtil.parseInt(Config.VXLANPort.toString(), 4789); // A well-known UDP port (4789) has been assigned by IANA for VXLAN.
+            int vnetID = NumbersUtil.parseInt(vnet, 0);
+            String multicastAddr = "239." + String.valueOf(vnetID >> 16 % 256) + "." + String.valueOf(vnetID >> 8 % 256 ) + "." + String.valueOf( vnetID % 256 );
+            String vxlanDef = vnet + ":" + port + "?mcastaddr=" + multicastAddr;
+            implemented.setBroadcastUri(BroadcastDomainType.Vxlan.toUri(vxlanDef));
             allocateVnetComplete(network, implemented, dcId, physicalNetworkId, reservationId, vnet);
         } else {
             implemented.setBroadcastUri(network.getBroadcastUri());

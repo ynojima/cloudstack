@@ -22,7 +22,7 @@
 ## TODO(VXLAN): MTU, IPv6 underlying
 
 usage() {
-  printf "Usage: %s: -o <op>(add | delete) -v <vxlan id> -p <pif> -b <bridge name>\n" 
+  printf "Usage: %s: -o <op>(add | delete) -v <vxlan id> -p <pif> -b <bridge name> [ -P <udp port> ] [ -m <multicast addr> ] \n"
 }
 
 addVxlan() {
@@ -182,13 +182,19 @@ do
   b)	bflag=1
 		brName="$OPTARG"
 		;;
+  P)    Pflag=1
+        udpPort="$OPTARG"
+        ;;
+  m)    mflag=1
+        mcastAddr="$OPTARG"
+        ;;
   ?)	usage
 		exit 2
 		;;
   esac
 done
 
-# Check that all arguments were passed in
+# Check that all mandatory arguments were passed in
 if [ "$oflag$vflag$pflag$bflag" != "1111" ]
 then
 	usage
@@ -199,7 +205,7 @@ fi
 lsmod|grep ^vxlan >& /dev/null
 if [ $? -gt 0 ]
 then
-   modprobe=`modprobe vxlan 2>&1`
+   modprobe=`modprobe vxlan udp_port=$udpPort 2>&1`
    if [ $? -gt 0 ]
    then
      printf "Failed to load vxlan kernel module: $modprobe"
