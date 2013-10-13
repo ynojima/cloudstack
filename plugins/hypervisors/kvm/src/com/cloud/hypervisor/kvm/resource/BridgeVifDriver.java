@@ -96,9 +96,23 @@ public class BridgeVifDriver extends VifDriverBase {
 
         String vNetId = null;
         String protocol = null;
-        if (nic.getBroadcastType() == Networks.BroadcastDomainType.Vlan || nic.getBroadcastType() == Networks.BroadcastDomainType.Vxlan) {
-        	vNetId = Networks.BroadcastDomainType.getValue(nic.getBroadcastUri());
-        	protocol = Networks.BroadcastDomainType.getSchemeValue(nic.getBroadcastUri()).scheme();
+        int port = 0;
+        String multicastAddr = null;
+        if (nic.getBroadcastType() == Networks.BroadcastDomainType.Vlan){
+            vNetId = Networks.BroadcastDomainType.getValue(nic.getBroadcastUri());
+            protocol = Networks.BroadcastDomainType.getSchemeValue(nic.getBroadcastUri()).scheme();
+        }
+        else if (nic.getBroadcastType() == Networks.BroadcastDomainType.Vxlan) {
+            vNetId = Networks.BroadcastDomainType.getValue(nic.getBroadcastUri());
+            protocol = Networks.BroadcastDomainType.getSchemeValue(nic.getBroadcastUri()).scheme();
+            port = Networks.BroadcastDomainType.getPort(nic.getBroadcastUri());
+            String[] querySets = Networks.BroadcastDomainType.getQuery(nic.getBroadcastUri()).split("&");
+            for(String item : querySets){
+                String[] querySet = item.split("=");
+                if(querySet[0] == "maddr"){
+                    multicastAddr = querySet[1];
+                }
+            }
         }
         else if (nic.getBroadcastType() == Networks.BroadcastDomainType.Lswitch) {
             throw new InternalErrorException("Nicira NVP Logicalswitches are not supported by the BridgeVifDriver");
