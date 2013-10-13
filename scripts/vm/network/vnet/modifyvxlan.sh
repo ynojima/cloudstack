@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# modifyvnet.sh -- adds and deletes VXLANs from a Routing Server
+# modifyvxlan.sh -- adds and deletes VXLANs from a Routing Server
 # set -x
 
 ## TODO(VXLAN): MTU, IPv6 underlying
