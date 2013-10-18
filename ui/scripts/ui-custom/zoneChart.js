@@ -382,7 +382,7 @@
                         name: _l('label.direct.ips')
                     },
                     7: {
-                        name: _l('label.vlan')
+                        name: _l('label.vnet')
                     }
                 };
 

@@ -1086,7 +1086,7 @@
                                         }
                                     },
                                     vlan: {
-                                        label: 'label.vlan.id'
+                                        label: 'label.vnet.id'
                                     },
                                     vxlan: {
                                         label: 'label.vxlan.id'

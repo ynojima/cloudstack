@@ -1378,7 +1378,7 @@
                                             label: 'label.type'
                                         },
                                         vlan: {
-                                            label: 'label.vlan.id'
+                                            label: 'label.vnet.id'
                                         },
                                         broadcasturi: {
                                             label: 'broadcast URI'
