@@ -1146,7 +1146,7 @@
                                         label: 'label.state'
                                     },
                                     vlan: {
-                                        label: 'VLAN Range(s)',
+                                        label: 'vNet Range(s)',
                                         isEditable: true
                                     },
                                     tags: {
@@ -1820,7 +1820,7 @@
                                     id: 'dedicatedGuestVlanRanges',
                                     fields: {
                                         guestvlanrange: {
-                                            label: 'VLAN Range(s)'
+                                            label: 'vNet Range(s)'
                                         },
                                         domain: {
                                             label: 'label.domain'
