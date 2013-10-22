@@ -1855,7 +1855,7 @@
                                                 title: 'Dedicate VLAN Range',
                                                 fields: {
                                                     vlanrange: {
-                                                        label: 'VLAN Range',
+                                                        label: 'vNet Range',
                                                         /*  select: function(args) {
                               var items = [];
                               if(args.context.physicalNetworks[0].vlan != null && args.context.physicalNetworks[0].vlan.length > 0) {
