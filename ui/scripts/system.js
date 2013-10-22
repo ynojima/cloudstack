@@ -1814,7 +1814,7 @@
                             },
 
                             dedicatedGuestVlanRanges: {
-                                title: 'Dedicated VLAN Ranges',
+                                title: 'Dedicated vNet Ranges',
                                 listView: {
                                     section: 'dedicatedGuestVlanRanges',
                                     id: 'dedicatedGuestVlanRanges',
@@ -1845,14 +1845,14 @@
                                     },
                                     actions: {
                                         add: {
-                                            label: 'Dedicate VLAN Range',
+                                            label: 'Dedicate vNet Range',
                                             messages: {
                                                 notification: function(args) {
-                                                    return 'Dedicate VLAN Range';
+                                                    return 'Dedicate vNet Range';
                                                 }
                                             },
                                             createForm: {
-                                                title: 'Dedicate VLAN Range',
+                                                title: 'Dedicate vNet Range',
                                                 fields: {
                                                     vlanrange: {
                                                         label: 'vNet Range',
