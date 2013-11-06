@@ -2022,7 +2022,7 @@ ServerResource {
                     if (nic.getBrName().equalsIgnoreCase(_publicBridgeName)
                             || nic.getBrName().equalsIgnoreCase(_privBridgeName)
                             || nic.getBrName().equalsIgnoreCase(_guestBridgeName)) {
-                        vlanAllocatedToVM.put(Vlan.UNTAGGED, nicPos);
+                        vlanAllocatedToVM.put(BroadcastDomainType.Vlan.toUri(Vlan.UNTAGGED).toString(), nicPos);
                     } else {
                         String vlanId = getVlanIdFromBridge(nic.getBrName());
                         vlanAllocatedToVM.put(vlanId, nicPos);
