@@ -314,7 +314,8 @@ public class Networks {
         },
         Vswitch("vs", String.class),
         Undecided(null, null),
-        Vnet("vnet", Long.class);
+        Vnet("vnet", Long.class),
+        Vxlan("vxlan", Integer.class);
 
         private final String scheme;
         private final Class<?> type;
